@@ -1,14 +1,14 @@
 
 # NSMC JDBC Client Samples
 
-This project demonstrates how to use the 
+This project demonstrates how to use the [Natife Spark MongoDB Conenctor (NSMC)](https://github.com/spirom/spark-mongodb-connector) from a Java/JDBC program via the Apache Hive JDBC driver and Apache Spark's Thrift JDBC server.  
 
 ## Prerequisites
 
 - [MongoDB Instance](http://docs.mongodb.org/manual/installation/)
 - [Apache Spark Instance](https://spark.apache.org/downloads.html)
 - Native Spark MongoDB Conenctor (NSMC) assembly JAR  [available here](https://github.com/spirom/spark-mongodb-connector/releases)
-  - Set up with the [MongoDB example ecollection from the NSMC examples\(http://github.com/spirom/spark-mongodb-examples) -- only necessary to run the class `PopulateTestCollection`.
+  - Set up with the [MongoDB example collection from the NSMC examples](http://github.com/spirom/spark-mongodb-examples) -- only necessary to run the class `PopulateTestCollection`.
 - Apache Spark Thrift [JDBC Server instance](https://spark.apache.org/docs/latest/sql-programming-guide.html#running-the-thrift-jdbcodbc-server)
 
 ## Configuring the Thrift JDBC server to use NSMC
@@ -20,7 +20,7 @@ This project demonstrates how to use the
     # omit the next two lines if you're not using MongoDB authentication, 
     # otherwise provide ana ppropriate username and password
     spark.nsmc.user                 <yourMongoDBUserName>
-    spark.nsmc.password		    <yourMongoDBPassword>
+    spark.nsmc.password             <yourMongoDBPassword>
     spark.executor.extraClassPath   <downloads>/spark-mongodb-connector-assembly-0.5.2.jar
 
 ### Running the Thrift server
@@ -28,7 +28,7 @@ This project demonstrates how to use the
 You need to let the Thrift JDBC server know the location of the Spark master, the above configuration file, and also the path 
 tp the NSMC assmebly file. 
 
-    ./sbin/start-thriftserver.sh \
+    <apache spark install path>/sbin/start-thriftserver.sh \
       --master <your masster url> \
       --driver-class-path <downloads>/spark-mongodb-connector-assembly-0.5.2.jar \
       --properties-file <your vonfig location>/nsmc.conf 
@@ -36,6 +36,8 @@ tp the NSMC assmebly file.
 ## Building the example
 
 You can build the project using either Apache Maven or IntelliJ Idea.
+
+    mvn compile
 
 ## Running the example
 
