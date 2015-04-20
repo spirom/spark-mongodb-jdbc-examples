@@ -8,35 +8,70 @@ import java.sql.ResultSetMetaData;
 public class Demo {
     private static String driverName = "org.apache.hive.jdbc.HiveDriver";
 
+    private static void showTables(Statement stmt) throws SQLException {
+	System.out.println("*** Showing tables");
+        String sql = "SHOW TABLES";
+        System.out.println("Running: " + sql);
+        ResultSet res = stmt.executeQuery(sql);
+        while (res.next()) {
+            System.out.println(res.getString(1) + ", " + res.getString(2));
+        }
+    }
+
     /**
-     * @param args
-     * @throws SQLException
+     * For a given ResultSet, print the column metadata and then print the the data.
      */
+    private static void describeAndPrint(ResultSet res) throws SQLException {
+	ResultSetMetaData rsm = res.getMetaData();
+
+	System.out.println("*** Column metadata:");
+	int ncols = rsm.getColumnCount();
+	System.out.println("total of " + ncols + " columns");
+	for (int i = 1; i <= ncols; i++) {
+	    System.out.println("Column " + i + " : " + rsm.getColumnName(i));
+	    System.out.println("  Label : " + rsm.getColumnLabel(i));
+	    System.out.println("  Class Name : " + rsm.getColumnClassName(i));
+	    System.out.println("  Type : " + rsm.getColumnType(i));
+	    System.out.println("  Type Name : " + rsm.getColumnTypeName(i));
+	}
+
+	System.out.println("*** Data:");
+        while (res.next()) {
+	    System.out.println("Row " + res.getRow());	
+	    for (int i = 1; i <= ncols; i++) {
+		System.out.println("  Column " + i + " : " + res.getObject(i));
+	    }
+        }
+    }
+
     public static void main(String[] args) throws SQLException {
         try {
             Class.forName(driverName);
         } catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             System.exit(1);
         }
-        //replace "hive" here with the name of the user the queries should run as
         Connection con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default", "hive", "");
         Statement stmt = con.createStatement();
         String tableName = "dataTable";
-        stmt.execute("drop table if exists " + tableName);
-        stmt.execute("CREATE TEMPORARY TABLE dataTable USING nsmc.sql.MongoRelationProvider OPTIONS (db 'test', collection 'scratch')");
+
+	// start with a clean slate
+	System.out.println("*** Cleaning up");
+        stmt.execute("DROP TABLE IF EXISTS " + tableName);
+
+	// register the temporary table
+	System.out.println("*** Registering the table");
+        stmt.execute("CREATE TEMPORARY TABLE " + tableName + " " +
+		     "USING nsmc.sql.MongoRelationProvider " + 
+		     "OPTIONS (db 'test', collection 'scratch')");
+
         // show tables
-        String sql = "show tables";
+	showTables(stmt);
+
+        // describe table
+        String sql = "describe " + tableName;
         System.out.println("Running: " + sql);
         ResultSet res = stmt.executeQuery(sql);
-        if (res.next()) {
-            System.out.println(res.getString(1));
-        }
-        // describe table
-        sql = "describe " + tableName;
-        System.out.println("Running: " + sql);
-        res = stmt.executeQuery(sql);
         while (res.next()) {
             System.out.println(res.getString(1) + "\t" + res.getString(2));
         }
@@ -45,42 +80,25 @@ public class Demo {
         sql = "select custid, billingAddress, orders from " + tableName;
         System.out.println("Running: " + sql);
         res = stmt.executeQuery(sql);
+	describeAndPrint(res);
 
-	ResultSetMetaData rsm = res.getMetaData();
+        // deeper query
+        sql = "SELECT custid, billingAddress.zip FROM " + tableName;
+        System.out.println("Running: " + sql);
+        res = stmt.executeQuery(sql);
+	describeAndPrint(res);
 
-	for (int i = 1; i <= rsm.getColumnCount(); i++) {
-	    System.out.println("[" + i + "] " + rsm.getColumnName(i) + " : " + rsm.getColumnClassName(i));
-	}
+        // query usign Hive features
+        sql = "SELECT custid, o.orderid, o.itemid, o.quantity FROM " + tableName + " LATERAL VIEW explode(orders) t AS o";
+        System.out.println("Running: " + sql);
+        res = stmt.executeQuery(sql);
+	describeAndPrint(res);
 
-        while (res.next()) {
-            System.out.println(String.valueOf(res.getString(1)));
-	    Object o = res.getObject(2);
-	    if (o != null) System.out.println(o.getClass() + ", " + (String)o);
-	    Object o3 = res.getObject(3);
-	    if (o3 != null) System.out.println(o3.getClass() + ", " + (String)o3);
-	    /*
-	    Struct s = (Struct)o;
-	    Object[] attrs = s.getAttributes();
-	    for (Object a: attrs) {
-		System.out.println(a);
-	    }
-	    */
-        }
-
+	System.out.println("*** Dropping the table");
+        stmt.execute("DROP TABLE " + tableName);
+	
 	// show tables
-        sql = "show tables";
-        System.out.println("Running: " + sql);
-        res = stmt.executeQuery(sql);
-        while (res.next()) {
-            System.out.println(res.getString(1) + ", " + res.getString(2));
-        }
+	showTables(stmt);
 
-        // regular hive query
-        sql = "select count(1) from " + tableName;
-        System.out.println("Running: " + sql);
-        res = stmt.executeQuery(sql);
-        while (res.next()) {
-            System.out.println(res.getString(1));
-        }
     }
 }
