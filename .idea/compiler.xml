@@ -25,5 +25,8 @@
         <module name="JDBCExample" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="JDBCExample" target="1.5" />
+    </bytecodeTargetLevel>
   </component>
 </project>
