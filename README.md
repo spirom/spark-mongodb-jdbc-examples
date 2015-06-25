@@ -7,7 +7,7 @@ This project demonstrates how to use the [Natife Spark MongoDB Conenctor (NSMC)]
 
 - [MongoDB Instance](http://docs.mongodb.org/manual/installation/)
 - [Apache Spark Instance](https://spark.apache.org/downloads.html)
-- Native Spark MongoDB Conenctor (NSMC) assembly JAR  [available here](https://github.com/spirom/spark-mongodb-connector/releases)
+- Native Spark MongoDB Connector (NSMC) assembly JAR  [available here](https://github.com/spirom/spark-mongodb-connector/releases)
   - Set up with the [MongoDB example collection from the NSMC examples](http://github.com/spirom/spark-mongodb-examples) -- only necessary to run the class `PopulateTestCollection`.
 - Apache Spark Thrift [JDBC Server instance](https://spark.apache.org/docs/latest/sql-programming-guide.html#running-the-thrift-jdbcodbc-server)
 
@@ -21,7 +21,7 @@ This project demonstrates how to use the [Natife Spark MongoDB Conenctor (NSMC)]
     # otherwise provide ana ppropriate username and password
     spark.nsmc.user                 <yourMongoDBUserName>
     spark.nsmc.password             <yourMongoDBPassword>
-    spark.executor.extraClassPath   <downloads>/spark-mongodb-connector-assembly-0.5.2.jar
+    spark.executor.extraClassPath   <downloads>/spark-mongodb-connector-assembly-0.5.3.jar
 
 ### Running the Thrift server
 
@@ -30,7 +30,7 @@ tp the NSMC assmebly file.
 
     <apache spark install path>/sbin/start-thriftserver.sh \
       --master <your masster url> \
-      --driver-class-path <downloads>/spark-mongodb-connector-assembly-0.5.2.jar \
+      --driver-class-path <downloads>/spark-mongodb-connector-assembly-0.5.3.jar \
       --properties-file <your vonfig location>/nsmc.conf 
 
 ## Building the example
